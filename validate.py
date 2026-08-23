@@ -5,15 +5,13 @@ try:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    import matplotlib.backends.backend_pdf as pdf_pages
-except ImportError:
+    except ImportError:
     print("installing matplotlib...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "matplotlib"])
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    import matplotlib.backends.backend_pdf as pdf_pages
-
+    
 VALID = set("ACGTNacgtn")
 ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 os.makedirs("output", exist_ok=True)
@@ -290,14 +288,12 @@ def write_csv(results, path):
                         "errors": r["errors"], "warnings": r["warnings"], "passed": r["passed"]})
 
 
-def write_graphs(results, path):
+def write_graphs(results, out_dir):
     ids      = [r["run_id"] for r in results]
     errors   = [r["errors"]   for r in results]
     warnings = [r["warnings"] for r in results]
     passed   = [r["passed"]   for r in results]
     x = range(len(ids))
-
-    pdf = pdf_pages.PdfPages(path)
 
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.bar(x, errors,   label="errors",   color="#f44336", alpha=0.85)
@@ -308,7 +304,7 @@ def write_graphs(results, path):
     ax.set_title("errors and warnings per run")
     ax.legend()
     plt.tight_layout()
-    pdf.savefig(fig)
+    plt.savefig(os.path.join(out_dir, "errors_per_run.png"), dpi=150)
     plt.close()
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -322,7 +318,7 @@ def write_graphs(results, path):
     ax.set_title("check results per run")
     ax.legend()
     plt.tight_layout()
-    pdf.savefig(fig)
+    plt.savefig(os.path.join(out_dir, "check_results.png"), dpi=150)
     plt.close()
 
     rule_errs = {}
@@ -337,46 +333,70 @@ def write_graphs(results, path):
         ax.set_title("errors by rule")
         plt.xticks(rotation=30, ha="right", fontsize=8)
         plt.tight_layout()
-        pdf.savefig(fig)
+        plt.savefig(os.path.join(out_dir, "errors_by_rule.png"), dpi=150)
         plt.close()
-
-    pdf.close()
 
 
 # --- run ---
+print("=" * 50)
+print("  VCF Validator")
+print("=" * 50)
+
 runs = find_inputs()
 if not runs:
     print("no vcf files found in input/vcf/")
     sys.exit(1)
 
-print(f"found {len(runs)} vcf file(s)\n")
+print(f"\nfound {len(runs)} vcf file(s) to validate\n")
 all_results = []
 
 for run in runs:
-    print(f"  {run['vcf']} ...")
+    print(f"  validating {os.path.basename(run['vcf'])} ...")
     result = validate_vcf(run["vcf"])
+    print(f"    structural checks done")
     if run["ref"]:
-        print(f"    + reference {run['ref']}")
+        print(f"    checking against reference, please wait ...")
         check_ref(result, run["vcf"], run["ref"])
+        print(f"    reference check done")
     result["run_id"] = run["id"]
     all_results.append(result)
-    print(f"    {result['status']}  errors={result['errors']} warnings={result['warnings']} passed={result['passed']}")
+    print(f"    result: {result['status']}  errors={result['errors']}  warnings={result['warnings']}  passed={result['passed']}")
+    print()
 
 json_path = f"output/results_{ts}.json"
 csv_path  = f"output/results_{ts}.csv"
-pdf_path  = f"output/results_{ts}.pdf"
+graphs_dir = f"output"
 
+print("writing results ...")
+print("  saving JSON, please wait ...")
 with open(json_path, "w") as f:
     json.dump({"timestamp": ts, "total": len(all_results),
                "passed":   sum(1 for r in all_results if r["status"] == "PASSED"),
                "warnings": sum(1 for r in all_results if r["status"] == "PASSED_WITH_WARNINGS"),
                "failed":   sum(1 for r in all_results if r["status"] == "FAILED"),
                "runs": all_results}, f, indent=2)
+print("  JSON done")
 
+print("  saving CSV, please wait ...")
 write_csv(all_results, csv_path)
-write_graphs(all_results, pdf_path)
+print("  CSV done")
 
-print(f"\noutput/")
-print(f"  {os.path.basename(json_path)}")
-print(f"  {os.path.basename(csv_path)}")
-print(f"  {os.path.basename(pdf_path)}")
+print("  generating graphs, please wait ...")
+write_graphs(all_results, graphs_dir)
+print("  graphs done")
+
+passed  = sum(1 for r in all_results if r["status"] == "PASSED")
+warned  = sum(1 for r in all_results if r["status"] == "PASSED_WITH_WARNINGS")
+failed  = sum(1 for r in all_results if r["status"] == "FAILED")
+
+print()
+print("=" * 50)
+print(f"  done.  {len(all_results)} run(s)  |  passed={passed}  warnings={warned}  failed={failed}")
+print("=" * 50)
+print()
+print("output files:")
+print(f"  {json_path}")
+print(f"  {csv_path}")
+print(f"  output/errors_per_run.png")
+print(f"  output/check_results.png")
+print(f"  output/errors_by_rule.png")
