@@ -46,8 +46,12 @@ python validate.py
 
 Results are written to `output/` with a timestamp. Three files are created each run: a `.json` with full check-by-check detail, a `.csv` summary table you can open in Excel, and a `.pdf` with graphs.
 
+> Not sure what to expect? Open `test_files/` to see example VCF inputs and sample output before using your own data.
+
 ## Requirements
 
 - Python 3.10 or higher
 - matplotlib (installed automatically on first run)
 - Disk space for your input files — the full GRCh38 reference is ~3GB uncompressed
+
+> **Note:** The reference check against the full GRCh38 genome can take 30+ minutes per VCF file. This is expected. Do not close the terminal while it is running. You will see each file print its result when done, followed by "output/" when everything is saved.
