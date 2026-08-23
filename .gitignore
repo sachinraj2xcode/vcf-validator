@@ -1,0 +1,8 @@
+input/vcf/*
+input/reference/*
+output/*
+__pycache__/
+*.pyc
+.DS_Store
+*.docx
+
