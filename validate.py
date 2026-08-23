@@ -5,14 +5,12 @@ try:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    import matplotlib.backends.backend_pdf as pdf_pages
 except ImportError:
     print("installing matplotlib...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "matplotlib"])
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    import matplotlib.backends.backend_pdf as pdf_pages
 
 VALID = set("ACGTNacgtn")
 ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -290,93 +288,90 @@ def write_csv(results, path):
                         "errors": r["errors"], "warnings": r["warnings"], "passed": r["passed"]})
 
 
-def write_graphs(results, path):
+def write_graphs(results, out_dir):
     ids      = [r["run_id"] for r in results]
     errors   = [r["errors"]   for r in results]
     warnings = [r["warnings"] for r in results]
     passed   = [r["passed"]   for r in results]
-    x = range(len(ids))
+    x        = range(len(ids))
 
-    pdf = pdf_pages.PdfPages(path)
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.bar(x, errors,   label="errors",   color="#f44336", alpha=0.85)
-    ax.bar(x, warnings, label="warnings", color="#ff9800", alpha=0.85, bottom=errors)
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(ids, rotation=30, ha="right", fontsize=8)
-    ax.set_ylabel("count")
-    ax.set_title("errors and warnings per run")
-    ax.legend()
-    plt.tight_layout()
-    pdf.savefig(fig)
-    plt.close()
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.bar(x, passed,   label="passed",   color="#4caf50", alpha=0.85)
-    ax.bar(x, warnings, label="warnings", color="#ff9800", alpha=0.85, bottom=passed)
-    ax.bar(x, errors,   label="errors",   color="#f44336", alpha=0.85,
-           bottom=[p+w for p, w in zip(passed, warnings)])
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(ids, rotation=30, ha="right", fontsize=8)
-    ax.set_ylabel("checks")
-    ax.set_title("check results per run")
-    ax.legend()
-    plt.tight_layout()
-    pdf.savefig(fig)
-    plt.close()
+    for data, labels, title, fname in [
+        ([errors, warnings], ["errors","warnings"], "errors and warnings per run", "errors_per_run.png"),
+        ([passed, warnings, errors], ["passed","warnings","errors"], "check results per run", "check_results.png"),
+    ]:
+        fig, ax = plt.subplots(figsize=(10, 5))
+        colors = ["#f44336","#ff9800"] if len(data)==2 else ["#4caf50","#ff9800","#f44336"]
+        bottom = [0]*len(ids)
+        for d, lbl, col in zip(data, labels, colors):
+            ax.bar(x, d, label=lbl, color=col, alpha=0.85, bottom=bottom)
+            bottom = [b+v for b,v in zip(bottom, d)]
+        ax.set_xticks(list(x)); ax.set_xticklabels(ids, rotation=30, ha="right", fontsize=8)
+        ax.set_ylabel("count"); ax.set_title(title); ax.legend(); plt.tight_layout()
+        plt.savefig(os.path.join(out_dir, fname), dpi=150); plt.close()
 
     rule_errs = {}
     for r in results:
         for c in r["checks"]:
-            if c["severity"] == "ERROR":
-                rule_errs[c["rule"]] = rule_errs.get(c["rule"], 0) + 1
+            if c["severity"] == "ERROR": rule_errs[c["rule"]] = rule_errs.get(c["rule"],0)+1
     if rule_errs:
         fig, ax = plt.subplots(figsize=(10, 5))
         ax.bar(rule_errs.keys(), rule_errs.values(), color="#f44336", alpha=0.85)
-        ax.set_ylabel("total errors")
-        ax.set_title("errors by rule")
-        plt.xticks(rotation=30, ha="right", fontsize=8)
-        plt.tight_layout()
-        pdf.savefig(fig)
-        plt.close()
-
-    pdf.close()
+        ax.set_ylabel("total errors"); ax.set_title("errors by rule")
+        plt.xticks(rotation=30, ha="right", fontsize=8); plt.tight_layout()
+        plt.savefig(os.path.join(out_dir, "errors_by_rule.png"), dpi=150); plt.close()
 
 
 # --- run ---
 runs = find_inputs()
 if not runs:
-    print("no vcf files found in input/vcf/")
-    sys.exit(1)
+    print("no vcf files found in input/vcf/"); sys.exit(1)
 
 print(f"found {len(runs)} vcf file(s)\n")
 all_results = []
 
 for run in runs:
-    print(f"  {run['vcf']} ...")
+    print(f"  [{all_results.__len__() + 1}/{len(runs)}] validating {os.path.basename(run['vcf'])} ...", end=" ", flush=True)
     result = validate_vcf(run["vcf"])
     if run["ref"]:
-        print(f"    + reference {run['ref']}")
+        print(f"checking reference ...", end=" ", flush=True)
         check_ref(result, run["vcf"], run["ref"])
     result["run_id"] = run["id"]
     all_results.append(result)
-    print(f"    {result['status']}  errors={result['errors']} warnings={result['warnings']} passed={result['passed']}")
+    print(f"{result['status']}  errors={result['errors']} warnings={result['warnings']} passed={result['passed']}")
 
 json_path = f"output/results_{ts}.json"
 csv_path  = f"output/results_{ts}.csv"
-pdf_path  = f"output/results_{ts}.pdf"
 
+print("\nsaving results, please wait, do not close ..."  , end=" ", flush=True)
 with open(json_path, "w") as f:
     json.dump({"timestamp": ts, "total": len(all_results),
                "passed":   sum(1 for r in all_results if r["status"] == "PASSED"),
                "warnings": sum(1 for r in all_results if r["status"] == "PASSED_WITH_WARNINGS"),
                "failed":   sum(1 for r in all_results if r["status"] == "FAILED"),
                "runs": all_results}, f, indent=2)
-
 write_csv(all_results, csv_path)
-write_graphs(all_results, pdf_path)
+write_graphs(all_results, "output")
 
-print(f"\noutput/")
+# errors and warnings only - readable audit trail
+errors_path = f"output/errors_{ts}.json"
+errors_only = []
+for r in all_results:
+    issues = [c for c in r["checks"] if c["severity"] in ("ERROR", "WARNING")]
+    if issues:
+        errors_only.append({
+            "run_id":   r["run_id"],
+            "file":     r["file"],
+            "status":   r["status"],
+            "errors":   r["errors"],
+            "warnings": r["warnings"],
+            "issues":   issues,
+        })
+with open(errors_path, "w") as f:
+    json.dump({"timestamp": ts, "runs_with_issues": len(errors_only), "runs": errors_only}, f, indent=2)
+print("done")
+
+print(f"\nfiles delivered to output/")
 print(f"  {os.path.basename(json_path)}")
+print(f"  {os.path.basename(errors_path)}  (errors and warnings only)")
 print(f"  {os.path.basename(csv_path)}")
-print(f"  {os.path.basename(pdf_path)}")
+print(f"  errors_per_run.png  |  check_results.png  |  errors_by_rule.png")

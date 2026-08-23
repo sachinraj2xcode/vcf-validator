@@ -1,9 +1,8 @@
 input/vcf/*
-!input/vcf/.gitkeep
 input/reference/*
-!input/reference/.gitkeep
 output/*
-!output/.gitkeep
 __pycache__/
 *.pyc
 .DS_Store
+*.docx
+

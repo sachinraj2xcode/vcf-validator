@@ -45,7 +45,25 @@ Put a `.fa` reference FASTA into `input/reference/`. This enables REF base consi
 python validate.py
 ```
 
-Results are written to `output/` with a timestamp. Three files are created each run: a `.json` with full check-by-check detail, a `.csv` summary table you can open in Excel, and a `.pdf` with graphs.
+Results are written to `output/` with a timestamp. Four files are created each run:
+
+| File | Contents |
+|---|---|
+| `errors_TIMESTAMP.json` | Every ERROR and WARNING with rule, line number, and message |
+| `results_TIMESTAMP.csv` | Summary table (status, error count, passed checks per file) |
+| `errors_per_run.png` | Bar chart of errors and warnings per run |
+| `check_results.png` | Stacked bar of passed / warning / error checks per run |
+| `errors_by_rule.png` | Error count broken down by rule category |
+
+**Results from the paper datasets (GRCh38 full reference):**
+
+| Dataset | Status | Errors | Warnings | Passed Checks |
+|---|---|---|---|---|
+| HG001 GRCh38 v4.2.1 | PASSED | 0 | 0 | 31,146,729 |
+| HG002 GRCh38 v4.2.1 | PASSED | 0 | 0 | 32,386,737 |
+| ClinVar 2023-01-07 | FAILED | 2 | 0 | 11,045,908 |
+
+ClinVar errors: one ALT field violation (`YT` at line 845,115) and one REF_CONTIG violation (chromosome `NW_009646201.1` not in GRCh38 primary assembly, at line 1,578,015).
 
 > Not sure what to expect? Open `test_files/` to see example VCF inputs and sample output before using your own data.
 
@@ -56,4 +74,4 @@ Results are written to `output/` with a timestamp. Three files are created each 
 
 The core validation logic has zero third-party dependencies and uses only the Python standard library. matplotlib is used for graph output only and is installed automatically on first run if not already present.
 
-> **Note:** The reference check against the full GRCh38 genome can take 30+ minutes per VCF file. This is expected. Do not close the terminal while it is running. You will see each file print its result when done, followed by "output/" when everything is saved.
+> **Note:** The reference check against the full GRCh38 genome can take 30+ minutes per VCF file. This is expected. Do not close the terminal while it is running. You will see each file print its result when done, followed by "output/" when everything is saved. No PDF is produced — graphs are saved as PNG files.
