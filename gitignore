@@ -1,0 +1,10 @@
+input/vcf/*
+input/reference/*
+output/*
+__pycache__/
+*.pyc
+.DS_Store
+
+!input/vcf/.gitkeep
+!input/reference/.gitkeep
+!output/.gitkeep
