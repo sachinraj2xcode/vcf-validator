@@ -11,6 +11,10 @@ https://ftp.ensembl.org/pub/release-115/fasta/homo_sapiens/dna/Homo_sapiens.GRCh
 
 This is the standard human reference genome used in modern genomics pipelines. All three VCF datasets below were validated against this file. The full assembly covers chromosomes 1 through 22, X, Y, and mitochondrial DNA.
 
+**Uncompressed size: ~3,005 MB**
+
+> **Runtime note:** Validating a VCF against the full GRCh38 reference can take 30+ minutes per file. This is expected. Do not close the terminal while it is running.
+
 During development, chromosome 1 and chromosome 22 were used for intermediate testing before the full reference was available. Chromosome 1 is the largest chromosome and exercises the most variants. Chromosome 22 is the smallest autosome and is commonly used in genomics testing because it downloads quickly. Final results reported in the paper used the full primary assembly.
 
 Download command:
@@ -29,6 +33,8 @@ https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/N
 
 HG001, also known as NA12878, is the most widely used benchmark sample in human genomics. It was produced by the Genome in a Bottle Consortium at NIST and represents a gold-standard set of high-confidence variant calls. It was chosen as the primary positive control: a well-curated file that a correct validator should pass with zero errors. Result: PASSED, 0 errors, 31,146,729 checks.
 
+**Uncompressed size: ~1,970 MB**
+
 Download command:
 ```bash
 curl -O https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh38/HG001_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
@@ -41,6 +47,8 @@ https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/
 
 HG002 is a second GIAB benchmark sample from a different individual. It was included to confirm that the HG001 result was not specific to one sample and that the validator produces consistent results across different benchmark files. Result: PASSED, 0 errors, 32,386,737 checks.
 
+**Uncompressed size: ~2,705 MB**
+
 Download command:
 ```bash
 curl -O https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/NISTv4.2.1/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
@@ -52,6 +60,8 @@ mv HG002_GRCh38_1_22_v4.2.1_benchmark.vcf input/vcf/
 https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2023/
 
 ClinVar is NCBI's public archive of human genetic variants with clinical interpretations. It was chosen as a real-world negative control: a widely used public database that is known to use extended VCF conventions beyond the base VCFv4.x specification. The validator correctly identified 2 ALT field violations where ClinVar uses non-standard notation for complex structural variants. Result: FAILED, 2 errors, 11,045,908 checks.
+
+**Uncompressed size: ~664 MB**
 
 Download command:
 ```bash
