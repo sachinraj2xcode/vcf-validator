@@ -46,8 +46,6 @@ python validate.py
 
 Results are written to `output/` with a timestamp. Three files are created each run: a `.json` with full check-by-check detail, a `.csv` summary table you can open in Excel, and a `.pdf` with graphs.
 
-> Not sure what to expect? Open `test_files/` to see example VCF inputs and sample output before using your own data.
-
 ## Requirements
 
 - Python 3.10 or higher
