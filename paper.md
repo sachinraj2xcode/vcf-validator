@@ -1,5 +1,5 @@
 ---
-title: 'VCF Validation Through Structural, Reference, Genotype, Quality, and Evidence-Based Checks: A Layered Approach to Variant Call Format Quality Control'
+title: 'VCF Validation Through Structural, Reference, and Genotype Checks: A Layered Approach to Variant Call Format Quality Control'
 tags:
   - Python
   - bioinformatics
