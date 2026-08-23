@@ -45,7 +45,7 @@ The tool is implemented as a single Python script (`validate.py`) containing fiv
 - `check_sam()` checks read-level evidence from a plain-text SAM file
 - `validate_fastq()` performs standalone FASTQ structural checks
 
-Seventeen distinct rule categories are implemented across the four layers. These cover file structure and header conformance, per-field syntax validation for all eight fixed VCF columns, genotype token syntax and allele index range checking, coordinate sort order, and reference-genome REF-base consistency. The FASTQ validator checks four-line record structure, sequence character validity, sequence/quality length equality, and Phred+33 encoding [@ewing1998a].
+Seventeen distinct rule categories are implemented across the four layers. These cover file structure and header conformance, per-field syntax validation for all eight fixed VCF columns, genotype token syntax and allele index range checking, coordinate sort order, and reference-genome REF-base consistency. The FASTQ validator checks four-line record structure, sequence character validity, sequence/quality length equality, and Phred+33 encoding [@ewing1998a; @ewing1998b].
 
 The core logic has zero third-party dependencies and uses only the Python standard library. Read-level BAM/CRAM evidence requires pysam for binary files; a dependency-free plain-text SAM reader is provided as a fallback. Real BAM/CRAM files follow the SAM specification [@li2009].
 
