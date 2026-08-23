@@ -34,6 +34,8 @@ def parse_vcf(path):
                 continue
             if line.startswith("#CHROM"):
                 cols = line.lstrip("#").split("\t")
+                expected = ["CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO"]
+                hdr["chrom_header_ok"] = cols[:8] == expected
                 hdr["samples"] = cols[9:] if len(cols) > 9 else []
                 continue
             fields = line.split("\t")
@@ -71,6 +73,13 @@ def validate_vcf(path):
             add("WARNING", "FILEFORMAT", f"unusual version: {hdr['fileformat']}")
     else:
         add("ERROR", "FILEFORMAT", "missing ##fileformat line")
+
+    if hdr.get("chrom_header_ok") is None:
+        add("ERROR", "CHROM_HEADER", "missing #CHROM column header line")
+    elif not hdr["chrom_header_ok"]:
+        add("ERROR", "CHROM_HEADER", "column header order is incorrect (expected CHROM POS ID REF ALT QUAL FILTER INFO)")
+    else:
+        add("PASS", "CHROM_HEADER", "#CHROM column header present and in correct order")
 
     if not recs:
         add("WARNING", "NO_RECORDS", "no data records found")

@@ -43,7 +43,7 @@ The tool is implemented as a single Python script (`validate.py`) containing thr
 - `validate_vcf()` performs structural, field, genotype, and sort checks
 - `check_ref()` checks REF base consistency against a reference FASTA file
 
-Seventeen distinct rule categories are implemented across the three layers, covering file structure and header conformance, per-field syntax validation for all eight fixed VCF columns, genotype token syntax and allele index range checking, coordinate sort order, and reference-genome REF-base consistency. The core logic has zero third-party dependencies and uses only the Python standard library.
+Eighteen distinct rule categories are implemented across the three layers, covering file structure and header conformance, per-field syntax validation for all eight fixed VCF columns, genotype token syntax and allele index range checking, coordinate sort order, and reference-genome REF-base consistency. The core logic has no third-party dependencies. Matplotlib is used only for graphical output.
 
 # Results
 
@@ -57,7 +57,7 @@ The validator was run against three real-world datasets producing over 74 millio
 
 Table 1: Validation results across three real-world VCF datasets against the full GRCh38 primary assembly reference.
 
-Both GIAB benchmark files passed with zero errors, confirming that the validator does not produce false positives on well-curated gold-standard data. ClinVar was correctly identified as containing two genuine ALT field violations reflecting its documented use of extended VCF conventions for complex structural variants.
+Both GIAB benchmark files passed with zero errors, confirming no violations under the implemented validation rules and providing evidence that the validator does not produce false positives on well-curated data. ClinVar was correctly identified as containing two genuine ALT field violations reflecting its documented use of extended VCF conventions for complex structural variants.
 
 # Future Work
 
