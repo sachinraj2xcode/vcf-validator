@@ -1,5 +1,5 @@
 ---
-title: 'vcf_validator: A Layered, Rule-by-Rule Validator for Variant Call Format Files'
+title: 'VCF Validation Through Structural, Reference, Genotype, Quality, and Evidence-Based Checks: A Layered Approach to Variant Call Format Quality Control'
 tags:
   - Python
   - bioinformatics
@@ -15,7 +15,7 @@ authors:
 affiliations:
   - name: Independent Researcher
     index: 1
-date: 23 August 2026
+date: 21 August 2026
 bibliography: paper.bib
 ---
 

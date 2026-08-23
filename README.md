@@ -9,8 +9,9 @@ validate.py
 
   parse_vcf()     reads a VCF file into structured records
   validate_vcf()  checks every field and rule against the spec
-  load_fasta()    loads a reference FASTA into memory
   check_ref()     compares VCF REF bases against the reference
+
+  load_fasta()    loads a reference FASTA into memory
   find_inputs()   scans input/ folders for files to run
   write_csv()     writes a summary table to CSV
   write_graphs()  writes error/check charts to a PDF
@@ -51,7 +52,8 @@ Results are written to `output/` with a timestamp. Three files are created each 
 ## Requirements
 
 - Python 3.10 or higher
-- matplotlib (installed automatically on first run)
 - Disk space for your input files — the full GRCh38 reference is ~3GB uncompressed
+
+The core validation logic has zero third-party dependencies and uses only the Python standard library. matplotlib is used for graph output only and is installed automatically on first run if not already present.
 
 > **Note:** The reference check against the full GRCh38 genome can take 30+ minutes per VCF file. This is expected. Do not close the terminal while it is running. You will see each file print its result when done, followed by "output/" when everything is saved.
