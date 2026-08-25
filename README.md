@@ -2,6 +2,12 @@
 
 Validates VCF files against the VCF specification and optionally checks REF bases against a reference genome, outputting results as JSON, CSV, and graphs.
 
+## Citation
+
+If you use this tool, please cite the associated paper:
+
+Raj, S. (2026). VCF Validation Through Structural, Reference, and Genotype Checks: A Layered Approach to Variant Call Format Quality Control. Zenodo. https://doi.org/ZENODO_DOI
+
 ## Code structure
 
 ```
@@ -14,7 +20,7 @@ validate.py
   load_fasta()    loads a reference FASTA into memory
   find_inputs()   scans input/ folders for files to run
   write_csv()     writes a summary table to CSV
-  write_graphs()  writes error/check charts to a PDF
+  write_graphs()  writes error/check charts to PNG files
 ```
 
 ## File system
@@ -45,7 +51,7 @@ Put a `.fa` reference FASTA into `input/reference/`. This enables REF base consi
 python validate.py
 ```
 
-Results are written to `output/` with a timestamp. Four files are created each run:
+Results are written to `output/` with a timestamp. Five files are created each run:
 
 | File | Contents |
 |---|---|
@@ -72,6 +78,6 @@ ClinVar errors: one ALT field violation (`YT` at line 845,115) and one REF_CONTI
 - Python 3.10 or higher
 - Disk space for your input files — the full GRCh38 reference is ~3GB uncompressed
 
-The core validation logic has zero third-party dependencies and uses only the Python standard library. matplotlib is used for graph output only and is installed automatically on first run if not already present.
+The core validation logic has no third-party dependencies. Matplotlib is used for graph output only and is installed automatically on first run if not already present.
 
 > **Note:** The reference check against the full GRCh38 genome can take 30+ minutes per VCF file. This is expected. Do not close the terminal while it is running. You will see each file print its result when done, followed by "output/" when everything is saved. No PDF is produced — graphs are saved as PNG files.
